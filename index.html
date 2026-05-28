@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Masters India — 2FA</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;min-height:100vh;display:flex;}
+.page{display:flex;width:100%;min-height:100vh;}
+
+/* ════════ LEFT PANEL ════════ */
+.left{width:50%;background:#0c1d42;display:flex;flex-direction:column;padding:3rem 3.5rem;position:relative;overflow:hidden;flex-shrink:0;}
+.left::before{content:'';position:absolute;right:-100px;top:50%;transform:translateY(-50%);width:380px;height:380px;border-radius:50%;border:55px solid rgba(255,255,255,0.04);}
+.left::after{content:'';position:absolute;right:-50px;bottom:-70px;width:260px;height:260px;border-radius:50%;border:40px solid rgba(255,255,255,0.04);}
+.l-logo-row{display:flex;align-items:center;gap:11px;margin-bottom:.35rem;}
+.l-logo{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.13);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;}
+.l-brand{font-size:21px;font-weight:700;color:#fff;}
+.l-sub{font-size:12.5px;color:rgba(255,255,255,.4);margin-bottom:1.75rem;}
+.l-pill{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.14);border-radius:20px;padding:5px 13px;font-size:10.5px;color:rgba(255,255,255,.7);margin-bottom:2.25rem;}
+.l-stats{display:flex;margin-bottom:2.25rem;border-top:1px solid rgba(255,255,255,.1);border-bottom:1px solid rgba(255,255,255,.1);padding:1.1rem 0;}
+.l-stat{flex:1;padding-right:1.25rem;border-right:1px solid rgba(255,255,255,.1);margin-right:1.25rem;}
+.l-stat:last-child{border-right:none;padding-right:0;margin-right:0;}
+.l-stat-n{font-size:16px;font-weight:700;color:#fff;}
+.l-stat-l{font-size:8.5px;color:rgba(255,255,255,.38);letter-spacing:1px;margin-top:2px;text-transform:uppercase;}
+.l-features{flex:1;}
+.l-feat{display:flex;align-items:flex-start;gap:12px;margin-bottom:1.4rem;}
+.l-ficon{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.l-ft{font-size:12.5px;font-weight:600;color:#fff;margin-bottom:2px;}
+.l-fs{font-size:11px;color:rgba(255,255,255,.42);line-height:1.5;}
+.l-live{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:13px 15px;position:relative;z-index:1;}
+.l-live-h{display:flex;align-items:center;gap:7px;margin-bottom:5px;}
+.l-ldot{width:6px;height:6px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.18);}
+.l-ltag{font-size:8.5px;color:rgba(255,255,255,.42);letter-spacing:1px;}
+.l-lalert{font-size:12px;font-weight:600;color:#fff;}
+.l-ltime{font-size:9.5px;color:rgba(255,255,255,.3);margin-top:2px;}
+.l-trusted{text-align:center;font-size:10.5px;color:rgba(255,255,255,.22);margin-top:1.25rem;position:relative;z-index:1;}
+
+/* ════════ RIGHT PANEL ════════ */
+.right{width:50%;background:#eef0f5;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;gap:16px;min-height:100vh;overflow-y:auto;}
+
+/* scenario tabs — horizontal scroll strip, left aligned */
+.scene-bar{display:flex;align-items:center;gap:10px;width:100%;max-width:420px;}
+.scene-label{font-size:11px;font-weight:600;color:#6b7280;white-space:nowrap;flex-shrink:0;}
+.scene-select{flex:1;padding:7px 12px;border-radius:8px;border:1.5px solid #dde0e8;background:#fff;color:#0c1d42;font-size:12px;font-weight:600;cursor:pointer;outline:none;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;}
+.scene-select:focus{border-color:#0c1d42;}
+.sc-opt{padding:9px 14px;font-size:11.5px;font-weight:500;color:rgba(255,255,255,.85);cursor:pointer;transition:background .15s;}
+.sc-opt:hover{background:rgba(255,255,255,.1);color:#fff;}
+.sc-opt.active-opt{background:rgba(255,255,255,.15);color:#fff;font-weight:700;}
+
+/* card shell */
+.card{background:#fff;border-radius:14px;border:1px solid #dde0e8;padding:2.25rem 2rem;width:100%;max-width:420px;}
+
+/* card header */
+.card-logo{width:60px;height:60px;border-radius:50%;background:#0c1d42;display:flex;align-items:center;justify-content:center;margin:0 auto .9rem;font-size:22px;font-weight:700;color:#fff;letter-spacing:-1px;}
+.card-brand{text-align:center;font-size:12.5px;color:#6b7280;margin-bottom:5px;font-weight:500;}
+.card-title{text-align:center;font-size:18px;font-weight:700;color:#111827;margin-bottom:12px;line-height:1.3;}
+.card-desc{font-size:12px;color:#6b7280;line-height:1.7;margin-bottom:1.6rem;text-align:center;padding:0 6px;}
+
+/* ── 2FA method row ── */
+.mrow{border:1.5px solid #e5e7eb;border-radius:11px;margin-bottom:10px;overflow:hidden;transition:border-color .2s,box-shadow .2s;}
+.mrow.r-active{border-color:#1a56db;box-shadow:0 0 0 3px rgba(26,86,219,.07);}
+.mrow.r-verified{border-color:#059669;box-shadow:0 0 0 3px rgba(5,150,105,.07);}
+.mrow.r-enabled{border-color:#059669;}
+.mrow.r-disabled{border-color:#e5e7eb;background:#fafafa;}
+.mrow.r-clickable{cursor:pointer;}
+.mrow.r-clickable:hover{border-color:#c7d2fe;}
+.mhead{display:flex;align-items:center;gap:11px;padding:13px 15px;user-select:none;}
+.mico{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.mt{font-size:13px;font-weight:600;color:#111827;}
+.ms{font-size:11.5px;color:#4b5563;margin-top:2px;font-weight:500;}
+.ms.dim{color:#9ca3af;}
+.mbadge{font-size:9.5px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;flex-shrink:0;margin-left:auto;}
+.b-rec{background:#eff6ff;color:#1d4ed8;}
+.b-bk{background:#f3f4f6;color:#6b7280;}
+.b-on{background:#d1fae5;color:#065f46;}
+.b-off{background:#f3f4f6;color:#9ca3af;}
+.mradio{width:19px;height:19px;border-radius:50%;border:2px solid #d1d5db;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s;margin-left:8px;}
+.mrow.r-active .mradio,.mrow.r-verified .mradio{border-color:#1a56db;background:#1a56db;}
+.mrdot{width:7px;height:7px;border-radius:50%;background:#fff;display:none;}
+.mrow.r-active .mrdot,.mrow.r-verified .mrdot{display:block;}
+
+/* OTP body expandable */
+.otpbody{display:none;padding:0 15px 15px;border-top:1px solid #f3f4f6;}
+.otpbody.open{display:block;}
+.tel-inp{width:100%;padding:9px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;color:#111827;background:#fff;outline:none;transition:border-color .2s;margin-bottom:9px;}
+.tel-inp:focus{border-color:#1a56db;box-shadow:0 0 0 3px rgba(26,86,219,.07);}
+.tel-inp:disabled{background:#f9fafb;color:#9ca3af;}
+.tel-inp::placeholder{color:#9ca3af;}
+
+/* send OTP button */
+.btn-send{width:100%;padding:10px;border-radius:8px;border:none;background:#0c1d42;color:#fff;font-size:13px;font-weight:600;cursor:pointer;}
+.btn-send:hover:not(:disabled){background:#172554;}
+.btn-send:disabled{background:#9ca3af;cursor:not-allowed;}
+
+/* compact OTP boxes */
+.otp-area{display:none;margin-top:12px;}
+.otp-area.open{display:block;}
+.otp-row{display:flex;gap:7px;justify-content:center;margin-bottom:8px;}
+.ob{width:39px;height:42px;border:1.5px solid #d1d5db;border-radius:8px;text-align:center;font-size:16px;font-weight:700;color:#111827;outline:none;background:#fff;padding:0;transition:border-color .2s;}
+.ob:focus{border-color:#1a56db;box-shadow:0 0 0 2px rgba(26,86,219,.1);}
+
+.resend-sm{text-align:right;font-size:11px;color:#9ca3af;margin-bottom:7px;}
+.resend-sm span{color:#1a56db;cursor:pointer;font-weight:500;}
+.errmsg{display:none;font-size:11px;color:#dc2626;background:#fef2f2;border:1px solid #fecaca;border-radius:7px;padding:6px 11px;margin-bottom:8px;}
+.errmsg.show{display:block;}
+.btn-verify-g{width:100%;padding:10px;border-radius:8px;border:none;background:#059669;color:#fff;font-size:13px;font-weight:600;cursor:pointer;}
+.btn-verify-g:hover{background:#047857;}
+
+/* footer row */
+.foot{display:flex;gap:9px;margin-top:1.4rem;}
+.btn-skip{flex:1;padding:11px;border-radius:8px;border:1.5px solid #e5e7eb;background:#fff;color:#374151;font-size:12.5px;font-weight:500;cursor:pointer;}
+.btn-skip:hover{background:#f9fafb;}
+.btn-cont{flex:2;padding:11px;border-radius:8px;border:none;background:#0c1d42;color:#fff;font-size:12.5px;font-weight:700;cursor:pointer;transition:opacity .2s;}
+.btn-cont:disabled{opacity:.32;cursor:not-allowed;}
+.btn-cont:not(:disabled):hover{background:#172554;}
+
+/* success state */
+.suc{display:none;flex-direction:column;align-items:center;text-align:center;}
+.suc.show{display:flex;}
+.suc-ring{width:74px;height:74px;border-radius:50%;background:#d1fae5;display:flex;align-items:center;justify-content:center;margin-bottom:1.25rem;}
+.suc-title{font-size:21px;font-weight:700;color:#111827;margin-bottom:7px;}
+.suc-sub{font-size:12.5px;color:#6b7280;line-height:1.65;max-width:290px;}
+.suc-tags{display:flex;gap:8px;margin:1.25rem 0;flex-wrap:wrap;justify-content:center;}
+.stag{display:flex;align-items:center;gap:5px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:20px;padding:4px 12px;font-size:11px;color:#15803d;font-weight:600;}
+.btn-dash{width:100%;padding:12px;background:#0c1d42;color:#fff;border:none;border-radius:9px;font-size:13.5px;font-weight:700;cursor:pointer;margin-bottom:9px;}
+.btn-dash:hover{background:#172554;}
+.btn-rst{width:100%;padding:10px;background:transparent;color:#6b7280;border:1px solid #e5e7eb;border-radius:9px;font-size:12.5px;cursor:pointer;}
+
+/* ════ VERIFICATION CARD (tabs 2-4) ════ */
+.verif-chip{background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:13px 16px;margin-bottom:16px;text-align:center;}
+.vc-label{font-size:11.5px;color:#9ca3af;margin-bottom:7px;}
+.vc-pills{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;}
+.vpill{display:inline-flex;align-items:center;gap:5px;border-radius:6px;padding:5px 11px;}
+.vpill-e{background:#eff6ff;}
+.vpill-m{background:#fff7ed;}
+.vpill-et{font-size:12px;font-weight:700;color:#1d4ed8;}
+.vpill-mt{font-size:12px;font-weight:700;color:#92400e;}
+.vand{font-size:11px;color:#9ca3af;}
+
+/* active OTP boxes (verif tabs) */
+.v-otp-row{display:flex;gap:8px;justify-content:center;margin-bottom:10px;}
+.vob{width:42px;height:44px;border:1.5px solid #d1d5db;border-radius:8px;text-align:center;font-size:17px;font-weight:700;color:#111827;outline:none;background:#fff;padding:0;transition:border-color .2s;}
+.vob:focus{border-color:#1a56db;box-shadow:0 0 0 2px rgba(26,86,219,.1);}
+.vob:first-child{border-color:#1a56db;}
+
+.v-err{display:none;font-size:11.5px;color:#dc2626;background:#fef2f2;border:1px solid #fecaca;border-radius:7px;padding:7px 11px;margin-bottom:10px;text-align:center;}
+.v-err.show{display:block;}
+
+/* verify + resend row */
+.v-btns{display:flex;gap:9px;margin-bottom:12px;}
+.btn-vc{flex:2;padding:11px;border-radius:8px;border:none;background:#172554;color:#fff;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.1px;}
+.btn-vc:hover{background:#0c1d42;}
+.btn-rs{flex:1;padding:11px;border-radius:8px;border:1.5px solid #e5e7eb;background:#f9fafb;color:#9ca3af;font-size:12.5px;font-weight:500;cursor:not-allowed;}
+.btn-rs.enabled{background:#fff;color:#374151;cursor:pointer;border-color:#d1d5db;}
+.btn-rs.enabled:hover{background:#f9fafb;}
+
+/* bottom row */
+.v-foot{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;}
+.back-lnk{font-size:12px;color:#1a56db;cursor:pointer;font-weight:500;}
+.back-lnk:hover{text-decoration:underline;}
+.timer-txt{display:flex;align-items:center;gap:4px;font-size:11.5px;color:#dc2626;font-weight:500;}
+
+/* Not-enabled card style */
+.mrow.r-disabled .mhead{opacity:.55;}
+.disabled-tag{font-size:9.5px;font-weight:600;padding:3px 9px;border-radius:20px;background:#f3f4f6;color:#9ca3af;white-space:nowrap;flex-shrink:0;margin-left:auto;}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ════ LEFT ════ -->
+  <div class="left">
+    <div>
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:.35rem;">
+        <div class="l-logo-row" style="margin-bottom:0;">
+          <div class="l-logo">mi</div>
+          <span class="l-brand">MastersIndia</span>
+        </div>
+        <!-- Scenario custom dropdown -->
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;position:relative;">
+          <span style="font-size:9.5px;font-weight:600;color:rgba(255,255,255,.4);letter-spacing:.5px;text-transform:uppercase;">Scenario</span>
+          <div id="scDrop" style="position:relative;min-width:170px;">
+            <button onclick="toggleDrop()" style="width:100%;padding:6px 28px 6px 10px;border-radius:7px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:600;cursor:pointer;text-align:left;position:relative;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" id="scBtn">
+              Setup — Email &amp; Mobile (OTP)
+              <span style="position:absolute;right:8px;top:50%;transform:translateY(-50%);">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </span>
+            </button>
+            <div id="scMenu" style="display:none;position:absolute;top:calc(100% + 4px);right:0;min-width:210px;background:#1e2d50;border:1px solid rgba(255,255,255,.15);border-radius:9px;overflow:hidden;z-index:999;box-shadow:0 8px 24px rgba(0,0,0,.4);">
+              <div class="sc-opt active-opt" onclick="pickScene(1,'Setup — Email &amp; Mobile (OTP)')">Setup — Email &amp; Mobile (OTP)</div>
+              <div class="sc-opt" onclick="pickScene(2,'Setup — Email &amp; Mobile (Select)')">Setup — Email &amp; Mobile (Select)</div>
+              <div class="sc-opt" onclick="pickScene(3,'Both Active')">Both Active</div>
+              <div class="sc-opt" onclick="pickScene(4,'Email Only Active')">Email Only Active</div>
+              <div class="sc-opt" onclick="pickScene(5,'Mobile Only Active')">Mobile Only Active</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="l-sub">GST Compliance, Simplified.</p>
+      <div class="l-pill">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        AI-Powered Intelligence
+      </div>
+      <div class="l-stats">
+        <div class="l-stat"><div class="l-stat-n">3% GDP</div><div class="l-stat-l">Tax Transactions</div></div>
+        <div class="l-stat"><div class="l-stat-n">8% e-Way</div><div class="l-stat-l">National Share</div></div>
+        <div class="l-stat"><div class="l-stat-n">500K+</div><div class="l-stat-l">API Calls Daily</div></div>
+      </div>
+    </div>
+    <div class="l-features">
+      <div class="l-feat">
+        <div class="l-ficon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+        <div><div class="l-ft">AI Reconciliation Engine</div><div class="l-fs">Auto-matches 95%+ invoices in seconds</div></div>
+      </div>
+      <div class="l-feat">
+        <div class="l-ficon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></div>
+        <div><div class="l-ft">ITC Intelligence</div><div class="l-fs">Zero misses, zero manual effort on credits</div></div>
+      </div>
+      <div class="l-feat">
+        <div class="l-ficon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+        <div><div class="l-ft">Predictive Risk Guard</div><div class="l-fs">Early warnings before GSTN notices</div></div>
+      </div>
+    </div>
+    <div>
+      <div class="l-live">
+        <div class="l-live-h"><div class="l-ldot"></div><span class="l-ltag">AI ACTIVITY · LIVE</span></div>
+        <div class="l-lalert">Risk alert: GSTR-1 deadline in 2 days for 3 entities</div>
+        <div class="l-ltime">23m ago</div>
+      </div>
+      <p class="l-trusted">Trusted by leading enterprises across India · GSTN-approved GSP</p>
+    </div>
+  </div>
+
+  <!-- ════ RIGHT ════ -->
+  <div class="right">
+
+    <!-- ═══════════════════════════════
+         SCENARIO 1 — SETUP 2FA
+    ═══════════════════════════════ -->
+    <div class="card" id="sc1">
+      <div id="s1form">
+        <div class="card-logo">mi</div>
+        <p class="card-brand">Masters India</p>
+        <h2 class="card-title">Enable Two-Factor Authentication</h2>
+        <p class="card-desc">Secure your account with 2FA via email, mobile, or both. This adds an extra layer of protection beyond your password.</p>
+
+        <!-- email -->
+        <div class="mrow r-clickable" id="s1eCard" onclick="s1ToggleEmail()">
+          <div class="mhead">
+            <div class="mico" style="background:#eff6ff;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></div>
+            <div style="flex:1;min-width:0;"><div class="mt">Email</div><div class="ms">anjuXXXXXX@masterindia.co</div></div>
+            <span class="mbadge b-rec" id="s1eBadge">Recommended</span>
+            <div class="mradio"><div class="mrdot"></div></div>
+          </div>
+        </div>
+
+        <!-- mobile -->
+        <div class="mrow r-clickable" id="s1mCard" onclick="s1OpenMobile(event)">
+          <div class="mhead">
+            <div class="mico" style="background:#fff7ed;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg></div>
+            <div style="flex:1;min-width:0;"><div class="mt">Mobile Number</div><div class="ms" id="s1mSub">xxxxxx6789</div></div>
+            <span class="mbadge b-bk" id="s1mBadge">Backup</span>
+            <div class="mradio"><div class="mrdot"></div></div>
+          </div>
+          <div class="otpbody" id="s1mBody">
+            <input type="tel" id="s1mNum" class="tel-inp" placeholder="Enter mobile number (e.g. +91 98765 43210)" onclick="event.stopPropagation()"/>
+            <button class="btn-send" id="s1mSendBtn" onclick="s1SendOtp(event)">Send OTP to Mobile</button>
+            <div class="otp-area" id="s1otpArea">
+              <div class="otp-row">
+                <input type="text" class="ob" maxlength="1" inputmode="numeric" oninput="oN(this,'s1')" onkeydown="oB(event,this,'s1')" onclick="event.stopPropagation()"/>
+                <input type="text" class="ob" maxlength="1" inputmode="numeric" oninput="oN(this,'s1')" onkeydown="oB(event,this,'s1')" onclick="event.stopPropagation()"/>
+                <input type="text" class="ob" maxlength="1" inputmode="numeric" oninput="oN(this,'s1')" onkeydown="oB(event,this,'s1')" onclick="event.stopPropagation()"/>
+                <input type="text" class="ob" maxlength="1" inputmode="numeric" oninput="oN(this,'s1')" onkeydown="oB(event,this,'s1')" onclick="event.stopPropagation()"/>
+                <input type="text" class="ob" maxlength="1" inputmode="numeric" oninput="oN(this,'s1')" onkeydown="oB(event,this,'s1')" onclick="event.stopPropagation()"/>
+                <input type="text" class="ob" maxlength="1" inputmode="numeric" oninput="oN(this,'s1')" onkeydown="oB(event,this,'s1')" onclick="event.stopPropagation()"/>
+              </div>
+              <div class="resend-sm"><span onclick="s1Resend()">Resend OTP</span></div>
+              <div class="errmsg" id="s1err">Incorrect OTP. Try again. (Demo: 1 2 3 4 5 6)</div>
+              <button class="btn-verify-g" onclick="s1Verify(event)">Verify &amp; Enable Mobile 2FA</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="foot">
+          <button class="btn-skip" onclick="s1Skip()">Skip</button>
+          <button class="btn-cont" id="s1cont" disabled onclick="s1Enable()">Continue</button>
+        </div>
+      </div>
+      <div class="suc" id="s1suc">
+        <div class="suc-ring"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="suc-title">2FA Enabled!</div>
+        <p class="suc-sub">Your account is now protected with Two-Factor Authentication.</p>
+        <div class="suc-tags" id="s1tags"></div>
+        <button class="btn-dash" onclick="alert('Redirecting to Dashboard...')">Go to Dashboard</button>
+        <button class="btn-rst" onclick="s1Reset()">Reset Demo</button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════
+         SCENARIO 2 — SETUP: SELECT ONLY (no OTP)
+    ═══════════════════════════════ -->
+    <div class="card" id="sc2" style="display:none;">
+      <div id="s2form">
+        <div class="card-logo">mi</div>
+        <p class="card-brand">Masters India</p>
+        <h2 class="card-title">Enable Two-Factor Authentication</h2>
+        <p class="card-desc">Secure your account with 2FA via email, mobile, or both. This adds an extra layer of protection beyond your password.</p>
+
+        <!-- email — click to select -->
+        <div class="mrow r-clickable" id="s2eCard" onclick="s2Toggle('email')">
+          <div class="mhead">
+            <div class="mico" style="background:#eff6ff;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></div>
+            <div style="flex:1;min-width:0;"><div class="mt">Email</div><div class="ms">anjuXXXXXX@masterindia.co</div></div>
+            <span class="mbadge b-rec" id="s2eBadge">Recommended</span>
+            <div class="mradio" id="s2eRadio"><div class="mrdot"></div></div>
+          </div>
+        </div>
+
+        <!-- mobile — click to select (pre-verified, no OTP) -->
+        <div class="mrow r-clickable" id="s2mCard" onclick="s2Toggle('mobile')">
+          <div class="mhead">
+            <div class="mico" style="background:#fff7ed;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg></div>
+            <div style="flex:1;min-width:0;"><div class="mt">Mobile Number</div><div class="ms">xxxxxx6789</div></div>
+            <span class="mbadge b-bk" id="s2mBadge">Backup</span>
+            <div class="mradio" id="s2mRadio"><div class="mrdot"></div></div>
+          </div>
+        </div>
+
+        <div class="foot">
+          <button class="btn-skip" onclick="s2Skip()">Skip</button>
+          <button class="btn-cont" id="s2cont" disabled onclick="s2Enable()">Continue</button>
+        </div>
+      </div>
+      <div class="suc" id="s2suc">
+        <div class="suc-ring"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="suc-title">2FA Enabled!</div>
+        <p class="suc-sub">Your account is now protected with Two-Factor Authentication.</p>
+        <div class="suc-tags" id="s2tags"></div>
+        <button class="btn-dash" onclick="alert('Redirecting to Dashboard...')">Go to Dashboard</button>
+        <button class="btn-rst" onclick="s2Reset()">Reset Demo</button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════
+         SCENARIO 3 — BOTH ACTIVE (login verify)
+    ═══════════════════════════════ -->
+    <div class="card" id="sc3" style="display:none;">
+      <div id="s3form">
+        <div class="card-logo">mi</div>
+        <p class="card-brand">Masters India</p>
+        <h2 class="card-title">Two Factor Verification</h2>
+
+        <!-- lock + key icon -->
+        <div style="display:flex;justify-content:center;margin-bottom:18px;">
+          <div style="width:60px;height:60px;border-radius:50%;background:#eef2ff;display:flex;align-items:center;justify-content:center;">
+            <svg width="36" height="36" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="8" y="28" width="34" height="26" rx="4" fill="#1e3a8a"/>
+              <path d="M14 28V20a11 11 0 0 1 22 0v8" stroke="#1e3a8a" stroke-width="4" stroke-linecap="round" fill="none"/>
+              <circle cx="50" cy="46" r="8" fill="#3b82f6" stroke="#1e3a8a" stroke-width="2"/>
+              <rect x="54" y="44" width="10" height="4" rx="1" fill="#3b82f6" stroke="#1e3a8a" stroke-width="1.5"/>
+              <rect x="60" y="48" width="3" height="3" rx="0.5" fill="#1e3a8a"/>
+              <rect x="56" y="48" width="3" height="3" rx="0.5" fill="#1e3a8a"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- email — enabled green -->
+        <div class="mrow r-enabled" style="margin-bottom:10px;">
+          <div class="mhead">
+            <div class="mico" style="background:#eff6ff;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></div>
+            <div style="flex:1;min-width:0;"><div class="mt">Email</div><div class="ms">anjuXXXXXX@masterindia.co</div></div>
+            <span class="mbadge b-on">2FA Enabled</span>
+          </div>
+        </div>
+        <div class="mrow r-enabled" style="margin-bottom:18px;">
+          <div class="mhead">
+            <div class="mico" style="background:#fff7ed;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg></div>
+            <div style="flex:1;min-width:0;"><div class="mt">Mobile Number</div><div class="ms">xxxxxx6789</div></div>
+            <span class="mbadge b-on">2FA Enabled</span>
+          </div>
+        </div>
+        <div class="verif-chip">
+          <div class="vc-label">Verification code sent on</div>
+          <div class="vc-pills">
+            <span class="vpill vpill-e"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg><span class="vpill-et">anjuXXXXXX@masterindia.co</span></span>
+            <span class="vand">and</span>
+            <span class="vpill vpill-m"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#92400e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg><span class="vpill-mt">xxxxxx6789</span></span>
+          </div>
+        </div>
+        <div class="v-otp-row">
+          <input type="text" class="vob" maxlength="1" inputmode="numeric" oninput="vON(this,'s3')" onkeydown="vOB(event,this,'s3')"/>
+          <input type="text" class="vob" maxlength="1" inputmode="numeric" oninput="vON(this,'s3')" onkeydown="vOB(event,this,'s3')"/>
+          <input type="text" class="vob" maxlength="1" inputmode="numeric" oninput="vON(this,'s3')" onkeydown="vOB(event,this,'s3')"/>
+          <input type="text" class="vob" maxlength="1" inputmode="numeric" oninput="vON(this,'s3')" onkeydown="vOB(event,this,'s3')"/>
+          <input type="text" class="vob" maxlength="1" inputmode="numeric" oninput="vON(this,'s3')" onkeydown="vOB(event,this,'s3')"/>
+          <input type="text" class="vob" maxlength="1" inputmode="numeric" oninput="vON(this,'s3')" onkeydown="vOB(event,this,'s3')"/>
+        </div>
+        <div class="v-err" id="s3err">Incorrect code. Try again. (Demo: 1 2 3 4 5 6)</div>
+        <div class="v-btns">
+          <button class="btn-vc" onclick="sVerif('s3')">Verify &amp; Continue</button>
+          <button class="btn-rs" id="s3rs" disabled onclick="sResend('s3',30)">Resend</button>
+        </div>
+        <div class="v-foot">
+          <span class="back-lnk" onclick="alert('Back to Sign in')">Back to Sign in</span>
+          <div class="timer-txt" id="s3timer"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span id="s3timerTxt"></span></div>
+        </div>
+      </div>
+      <div class="suc" id="s3suc">
+        <div class="suc-ring"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="suc-title">Verified!</div>
+        <p class="suc-sub">Identity verified via Email and Mobile. Redirecting to dashboard.</p>
+        <button class="btn-dash" style="margin-top:1.5rem;" onclick="alert('Dashboard...')">Go to Dashboard</button>
+        <button class="btn-rst" onclick="sReset('s3')">Reset Demo</button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════
+         SCENARIO 4 — EMAIL ONLY ACTIVE
+    ═══════════════════════════════ -->
+    <div class="card" id="sc4" style="display:none;">
+      <div id="s4form">
+        <div class="card-logo">mi</div>
+        <p class="card-brand">Masters India</p>
+        <h2 class="card-title">Two Factor Verification</h2>
+
+        <!-- lock + key icon — above email card -->
+        <div style="display:flex;justify-content:center;margin-bottom:18px;">
+          <div style="width:60px;height:60px;border-radius:50%;background:#eef2ff;display:flex;align-items:center;justify-content:center;">
+            <svg width="36" height="36" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="8" y="28" width="34" height="26" rx="4" fill="#1e3a8a"/>
+              <path d="M14 28V20a11 11 0 0 1 22 0v8" stroke="#1e3a8a" stroke-width="4" stroke-linecap="round" fill="none"/>
+              <circle cx="50" cy="46" r="8" fill="#3b82f6" stroke="#1e3a8a" stroke-width="2"/>
+              <rect x="54" y="44" width="10" height="4" rx="1" fill="#3b82f6" stroke="#1e3a8a" stroke-width="1.5"/>
+              <rect x="60" y="48" width="3" height="3" rx="0.5" fill="#1e3a8a"/>
+              <rect x="56" y="48" width="3" height="3" rx="0.5" fill="#1e3a8a"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- email — enabled green -->
+        <div class="mrow r-enabled" style="margin-bottom:18px;">
+          <div class="mhead">
+            <div class="mico" style="background:#eff6ff;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></div>
+            <div style="flex:1;min-width:0;"><div class="mt">Email</div><div class="ms">anjuXXXXXX@masterindia.co</div></div>
+            <span class="mbadge b-on">2FA Enabled</span>
+          </div>
+        </div>
+
+        <!-- email-only verification chip -->
+        <div class="verif-chip">
+          <div class="vc-label">Verification code sent on</div>
+          <div class="vc-pills">
+            <span class="vpill vpill-e"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg><span class="vpill-et">anjuXXXXXX@masterindia.co</span></span>
+          </div>
+        </div>
+
+        <div class="v-otp-row">
+          <input type="text" class="vob" maxlength="1" inputmode="numeric" oninput="vON(this,'s4')" onkeydown="vOB(event,this,'s4')"/>
+          <input type="text" class="vob" maxlength="1" inputmode="numeric" oninput="vON(this,'s4')" onkeydown="vOB(event,this,'s4')"/>
+          <input type="text" class="vob" maxlength="1" inputmode="numeric" oninput="vON(this,'s4')" onkeydown="vOB(event,this,'s4')"/>
+          <input type="text" class="vob" maxlength="1" inputmode="numeric" oninput="vON(this,'s4')" onkeydown="vOB(event,this,'s4')"/>
+          <input type="text" class="vob" maxlength="1" inputmode="numeric" oninput="vON(this,'s4')" onkeydown="vOB(event,this,'s4')"/>
+          <input type="text" class="vob" maxlength="1" inputmode="numeric" oninput="vON(this,'s4')" onkeydown="vOB(event,this,'s4')"/>
+        </div>
+        <div class="v-err" id="s4err">Incorrect code. Try again. (Demo: 1 2 3 4 5 6)</div>
+        <div class="v-btns">
+          <button class="btn-vc" onclick="sVerif('s4')">Verify &amp; Continue</button>
+          <button class="btn-rs" id="s4rs" disabled onclick="sResend('s4',30)">Resend</button>
+        </div>
+        <div class="v-foot">
+          <span class="back-lnk" onclick="alert('Back to Sign in')">Back to Sign in</span>
+          <div class="timer-txt" id="s4timer"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span id="s4timerTxt"></span></div>
+        </div>
+      </div>
+      <div class="suc" id="s4suc">
+        <div class="suc-ring"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="suc-title">Verified!</div>
+        <p class="suc-sub">Identity verified via Email OTP. Redirecting to dashboard.</p>
+        <button class="btn-dash" style="margin-top:1.5rem;" onclick="alert('Dashboard...')">Go to Dashboard</button>
+        <button class="btn-rst" onclick="sReset('s4')">Reset Demo</button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════
+         SCENARIO 5 — MOBILE ONLY ACTIVE
+    ═══════════════════════════════ -->
+    <div class="card" id="sc5" style="display:none;">
+      <div id="s5form">
+        <div class="card-logo">mi</div>
+        <p class="card-brand">Masters India</p>
+        <h2 class="card-title">Two Factor Verification</h2>
+
+        <!-- lock + key icon -->
+        <div style="display:flex;justify-content:center;margin-bottom:18px;">
+          <div style="width:60px;height:60px;border-radius:50%;background:#eef2ff;display:flex;align-items:center;justify-content:center;">
+            <svg width="36" height="36" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="8" y="28" width="34" height="26" rx="4" fill="#1e3a8a"/>
+              <path d="M14 28V20a11 11 0 0 1 22 0v8" stroke="#1e3a8a" stroke-width="4" stroke-linecap="round" fill="none"/>
+              <circle cx="50" cy="46" r="8" fill="#3b82f6" stroke="#1e3a8a" stroke-width="2"/>
+              <rect x="54" y="44" width="10" height="4" rx="1" fill="#3b82f6" stroke="#1e3a8a" stroke-width="1.5"/>
+              <rect x="60" y="48" width="3" height="3" rx="0.5" fill="#1e3a8a"/>
+              <rect x="56" y="48" width="3" height="3" rx="0.5" fill="#1e3a8a"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- mobile only — one card -->
+        <div class="mrow r-enabled" style="margin-bottom:18px;">
+          <div class="mhead">
+            <div class="mico" style="background:#fff7ed;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg></div>
+            <div style="flex:1;min-width:0;"><div class="mt">Mobile Number</div><div class="ms">xxxxxx6789</div></div>
+            <span class="mbadge b-on">2FA Enabled</span>
+          </div>
+        </div>
+
+        <div class="verif-chip">
+          <div class="vc-label">Verification code sent on</div>
+          <div class="vc-pills">
+            <span class="vpill vpill-m"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#92400e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg><span class="vpill-mt">xxxxxx6789</span></span>
+          </div>
+        </div>
+        <div class="v-otp-row">
+          <input type="text" class="vob" maxlength="1" inputmode="numeric" oninput="vON(this,'s5')" onkeydown="vOB(event,this,'s5')"/>
+          <input type="text" class="vob" maxlength="1" inputmode="numeric" oninput="vON(this,'s5')" onkeydown="vOB(event,this,'s5')"/>
+          <input type="text" class="vob" maxlength="1" inputmode="numeric" oninput="vON(this,'s5')" onkeydown="vOB(event,this,'s5')"/>
+          <input type="text" class="vob" maxlength="1" inputmode="numeric" oninput="vON(this,'s5')" onkeydown="vOB(event,this,'s5')"/>
+          <input type="text" class="vob" maxlength="1" inputmode="numeric" oninput="vON(this,'s5')" onkeydown="vOB(event,this,'s5')"/>
+          <input type="text" class="vob" maxlength="1" inputmode="numeric" oninput="vON(this,'s5')" onkeydown="vOB(event,this,'s5')"/>
+        </div>
+        <div class="v-err" id="s5err">Incorrect code. Try again. (Demo: 1 2 3 4 5 6)</div>
+        <div class="v-btns">
+          <button class="btn-vc" onclick="sVerif('s5')">Verify &amp; Continue</button>
+          <button class="btn-rs" id="s5rs" disabled onclick="sResend('s5',30)">Resend</button>
+        </div>
+        <div class="v-foot">
+          <span class="back-lnk" onclick="alert('Back to Sign in')">Back to Sign in</span>
+          <div class="timer-txt" id="s5timer"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span id="s5timerTxt"></span></div>
+        </div>
+      </div>
+      <div class="suc" id="s5suc">
+        <div class="suc-ring"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="suc-title">Verified!</div>
+        <p class="suc-sub">Identity verified via Mobile OTP. Redirecting to dashboard.</p>
+        <button class="btn-dash" style="margin-top:1.5rem;" onclick="alert('Dashboard...')">Go to Dashboard</button>
+        <button class="btn-rst" onclick="sReset('s5')">Reset Demo</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ════ CUSTOM DROPDOWN ════ */
+function toggleDrop(){
+  var m=document.getElementById('scMenu');
+  m.style.display=m.style.display==='none'?'block':'none';
+}
+function pickScene(n,label){
+  var btn=document.getElementById('scBtn');
+  btn.innerHTML=label+'<span style="position:absolute;right:8px;top:50%;transform:translateY(-50%);"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>';
+  document.getElementById('scMenu').style.display='none';
+  document.querySelectorAll('.sc-opt').forEach(function(o){o.classList.remove('active-opt');});
+  document.querySelectorAll('.sc-opt')[n-1].classList.add('active-opt');
+  ST(n);
+}
+document.addEventListener('click',function(e){
+  var drop=document.getElementById('scDrop');
+  if(drop&&!drop.contains(e.target))document.getElementById('scMenu').style.display='none';
+});
+
+/* ════ TAB SWITCH ════ */
+var timers={};
+function ST(n){
+  [1,2,3,4,5].forEach(function(i){
+    document.getElementById('sc'+i).style.display=i===n?'block':'none';
+  });
+  if(n>=3)startTimer('s'+n,30);
+}
+
+/* ════ s2 SELECT-ONLY ════ */
+var s2eSel=false, s2mSel=false;
+function s2Toggle(type){
+  if(type==='email'){
+    s2eSel=!s2eSel;
+    document.getElementById('s2eCard').className='mrow r-clickable'+(s2eSel?' r-active':'');
+  } else {
+    s2mSel=!s2mSel;
+    document.getElementById('s2mCard').className='mrow r-clickable'+(s2mSel?' r-active':'');
+  }
+  document.getElementById('s2cont').disabled=!(s2eSel||s2mSel);
+}
+function s2Enable(){
+  document.getElementById('s2form').style.display='none';
+  var t='';
+  if(s2eSel) t+='<div class="stag"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Email 2FA</div>';
+  if(s2mSel) t+='<div class="stag"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Mobile 2FA</div>';
+  document.getElementById('s2tags').innerHTML=t;
+  document.getElementById('s2suc').classList.add('show');
+}
+function s2Skip(){if(confirm('Skip 2FA? You can enable it anytime from Profile Settings.'))alert('Redirecting...');}
+function s2Reset(){
+  s2eSel=false;s2mSel=false;
+  document.getElementById('s2form').style.display='block';
+  document.getElementById('s2suc').classList.remove('show');
+  document.getElementById('s2eCard').className='mrow r-clickable';
+  document.getElementById('s2mCard').className='mrow r-clickable';
+  document.getElementById('s2cont').disabled=true;
+}
+
+/* ════ TIMER ════ */
+function startTimer(pfx,secs){
+  clearInterval(timers[pfx]);
+  var rem=secs;
+  var btn=document.getElementById(pfx+'rs');
+  var disp=document.getElementById(pfx+'timer');
+  var txt=document.getElementById(pfx+'timerTxt');
+  if(!btn)return;
+  btn.disabled=true; btn.classList.remove('enabled');
+  if(disp)disp.style.display='flex';
+  if(txt)txt.textContent='Resend OTP in '+rem+' seconds';
+  timers[pfx]=setInterval(function(){
+    rem--;
+    if(rem<=0){
+      clearInterval(timers[pfx]);
+      btn.disabled=false; btn.classList.add('enabled');
+      if(disp)disp.style.display='none';
+    } else {
+      if(txt)txt.textContent='Resend OTP in '+rem+' seconds';
+    }
+  },1000);
+}
+
+/* ════ SHARED OTP helpers ════ */
+function vON(el,pfx){
+  el.value=el.value.replace(/[^0-9]/g,'');
+  var bs=el.closest('.card').querySelectorAll('.vob');
+  var i=Array.from(bs).indexOf(el);
+  if(el.value&&i<bs.length-1)bs[i+1].focus();
+  document.getElementById(pfx+'err').classList.remove('show');
+}
+function vOB(e,el,pfx){
+  if(e.key==='Backspace'&&!el.value){
+    var bs=el.closest('.card').querySelectorAll('.vob');
+    var i=Array.from(bs).indexOf(el);
+    if(i>0)bs[i-1].focus();
+  }
+}
+function getVOtp(pfx){
+  var num=pfx.replace('s','');
+  var card=document.getElementById('sc'+num);
+  return Array.from(card.querySelectorAll('.vob')).map(function(b){return b.value;}).join('');
+}
+function sVerif(pfx){
+  if(getVOtp(pfx)!=='123456'){document.getElementById(pfx+'err').classList.add('show');return;}
+  document.getElementById(pfx+'err').classList.remove('show');
+  document.getElementById(pfx+'form').style.display='none';
+  document.getElementById(pfx+'suc').classList.add('show');
+  clearInterval(timers[pfx]);
+}
+function sResend(pfx,secs){
+  var num=pfx.replace('s','');
+  var card=document.getElementById('sc'+num);
+  card.querySelectorAll('.vob').forEach(function(b){b.value='';});
+  document.getElementById(pfx+'err').classList.remove('show');
+  var first=card.querySelector('.vob');
+  if(first)first.focus();
+  startTimer(pfx,secs);
+  alert('Verification code resent!\n(Demo: enter 1 2 3 4 5 6)');
+}
+function sReset(pfx){
+  var num=pfx.replace('s','');
+  document.getElementById(pfx+'form').style.display='block';
+  document.getElementById(pfx+'suc').classList.remove('show');
+  document.getElementById(pfx+'err').classList.remove('show');
+  var card=document.getElementById('sc'+num);
+  card.querySelectorAll('.vob').forEach(function(b){b.value='';});
+  startTimer(pfx,30);
+}
+
+/* ════ SETUP (sc1) ════ */
+var s1eSel=false,s1mVerif=false,s1mOpen=false;
+
+function s1ToggleEmail(){
+  s1eSel=!s1eSel;
+  document.getElementById('s1eCard').className='mrow r-clickable'+(s1eSel?' r-active':'');
+  s1Check();
+}
+function s1OpenMobile(e){
+  if(s1mVerif)return;
+  if(!s1mOpen){
+    s1mOpen=true;
+    document.getElementById('s1mCard').className='mrow r-clickable r-active';
+    document.getElementById('s1mBody').classList.add('open');
+    setTimeout(function(){document.getElementById('s1mNum').focus();},80);
+  }
+}
+function s1SendOtp(e){
+  e.stopPropagation();
+  var v=document.getElementById('s1mNum').value.trim();
+  if(!v){document.getElementById('s1mNum').style.borderColor='#dc2626';return;}
+  document.getElementById('s1mNum').style.borderColor='';
+  document.getElementById('s1mNum').disabled=true;
+  var b=document.getElementById('s1mSendBtn');
+  b.disabled=true;b.textContent='OTP Sent ✓';b.style.background='#9ca3af';
+  document.getElementById('s1otpArea').classList.add('open');
+  setTimeout(function(){document.querySelector('#s1otpArea .ob').focus();},80);
+}
+function oN(el,pfx){
+  el.value=el.value.replace(/[^0-9]/g,'');
+  var bs=document.querySelectorAll('#'+pfx+'otpArea .ob');
+  var i=Array.from(bs).indexOf(el);
+  if(el.value&&i<bs.length-1)bs[i+1].focus();
+  document.getElementById(pfx+'err').classList.remove('show');
+}
+function oB(e,el,pfx){
+  if(e.key==='Backspace'&&!el.value){
+    var bs=document.querySelectorAll('#'+pfx+'otpArea .ob');
+    var i=Array.from(bs).indexOf(el);
+    if(i>0)bs[i-1].focus();
+  }
+}
+function s1Verify(e){
+  e.stopPropagation();
+  var v=Array.from(document.querySelectorAll('#s1otpArea .ob')).map(function(b){return b.value;}).join('');
+  if(v!=='123456'){document.getElementById('s1err').classList.add('show');return;}
+  s1mVerif=true;
+  document.getElementById('s1err').classList.remove('show');
+  document.getElementById('s1mBody').classList.remove('open');
+  document.getElementById('s1mCard').className='mrow r-verified';
+  document.getElementById('s1mBadge').className='mbadge b-on';
+  document.getElementById('s1mBadge').textContent='Verified';
+  document.getElementById('s1mSub').textContent=document.getElementById('s1mNum').value.trim();
+  s1Check();
+}
+function s1Resend(){
+  document.querySelectorAll('#s1otpArea .ob').forEach(function(b){b.value='';});
+  document.getElementById('s1err').classList.remove('show');
+  document.querySelector('#s1otpArea .ob').focus();
+  alert('OTP resent! (Demo: 1 2 3 4 5 6)');
+}
+function s1Check(){document.getElementById('s1cont').disabled=!(s1eSel||s1mVerif);}
+function s1Enable(){
+  document.getElementById('s1form').style.display='none';
+  var t='';
+  if(s1eSel) t+='<div class="stag"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Email 2FA</div>';
+  if(s1mVerif)t+='<div class="stag"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Mobile 2FA</div>';
+  document.getElementById('s1tags').innerHTML=t;
+  document.getElementById('s1suc').classList.add('show');
+}
+function s1Skip(){if(confirm('Skip 2FA? You can enable it anytime from Profile Settings.'))alert('Redirecting...');}
+function s1Reset(){
+  s1eSel=false;s1mVerif=false;s1mOpen=false;
+  document.getElementById('s1form').style.display='block';
+  document.getElementById('s1suc').classList.remove('show');
+  document.getElementById('s1eCard').className='mrow r-clickable';
+  document.getElementById('s1mCard').className='mrow r-clickable';
+  document.getElementById('s1mBadge').className='mbadge b-bk';
+  document.getElementById('s1mBadge').textContent='Backup';
+  document.getElementById('s1mSub').textContent='xxxxxx6789';
+  document.getElementById('s1mBody').classList.remove('open');
+  document.getElementById('s1mNum').value='';document.getElementById('s1mNum').disabled=false;document.getElementById('s1mNum').style.borderColor='';
+  var b=document.getElementById('s1mSendBtn');b.disabled=false;b.textContent='Send OTP to Mobile';b.style.background='';
+  document.getElementById('s1otpArea').classList.remove('open');
+  document.querySelectorAll('#s1otpArea .ob').forEach(function(b){b.value='';});
+  document.getElementById('s1err').classList.remove('show');
+  document.getElementById('s1cont').disabled=true;
+}
+
+/* Auto-start timers for verif tabs */
+window.addEventListener('load', function(){
+  ['s3','s4','s5'].forEach(function(p){startTimer(p,30);});
+});
+</script>
+</body>
+</html>
