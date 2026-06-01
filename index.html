@@ -264,8 +264,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;m
             <div class="mradio"><div class="mrdot"></div></div>
           </div>
           <div class="otpbody" id="s1mBody">
-            <input type="tel" id="s1mNum" class="tel-inp" placeholder="Enter mobile number (e.g. +91 98765 43210)" onclick="event.stopPropagation()"/>
-            <button class="btn-send" id="s1mSendBtn" onclick="s1SendOtp(event)">Send OTP to Mobile</button>
+            <input type="tel" id="s1mNum" class="tel-inp" placeholder="Enter mobile number (e.g. +91 98765 43210)" onclick="event.stopPropagation()" oninput="document.getElementById('s1mNumErr').classList.remove('show');this.style.borderColor=''"/>
+            <div class="errmsg" id="s1mNumErr" style="margin-top:4px;margin-bottom:4px;">Please enter the mobile number registered by admin.</div>
+            <button class="btn-send" id="s1mSendBtn" onclick="s1SendOtp(event)">Send OTP</button>
             <div class="otp-area" id="s1otpArea">
               <div class="otp-row">
                 <input type="text" class="ob" maxlength="1" inputmode="numeric" oninput="oN(this,'s1')" onkeydown="oB(event,this,'s1')" onclick="event.stopPropagation()"/>
@@ -277,7 +278,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;m
               </div>
               <div class="resend-sm"><span onclick="s1Resend()">Resend OTP</span></div>
               <div class="errmsg" id="s1err">Incorrect OTP. Try again. (Demo: 1 2 3 4 5 6)</div>
-              <button class="btn-verify-g" onclick="s1Verify(event)">Verify &amp; Enable Mobile 2FA</button>
+              <button class="btn-verify-g" onclick="s1Verify(event)">Verify</button>
             </div>
           </div>
         </div>
@@ -551,6 +552,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;m
 </div>
 
 <script>
+/* ════ DASHBOARD ════ */
+function goToDashboard(){
+  document.querySelector('.page').style.display='none';
+  document.getElementById('dashboard').style.display='block';
+}
+function resetDashboard(){
+  document.getElementById('dashboard').style.display='none';
+  document.querySelector('.page').style.display='flex';
+}
+
 /* ════ CUSTOM DROPDOWN ════ */
 function toggleDrop(){
   var m=document.getElementById('scMenu');
@@ -591,12 +602,7 @@ function s2Toggle(type){
   document.getElementById('s2cont').disabled=!(s2eSel||s2mSel);
 }
 function s2Enable(){
-  document.getElementById('s2form').style.display='none';
-  var t='';
-  if(s2eSel) t+='<div class="stag"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Email 2FA</div>';
-  if(s2mSel) t+='<div class="stag"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Mobile 2FA</div>';
-  document.getElementById('s2tags').innerHTML=t;
-  document.getElementById('s2suc').classList.add('show');
+  goToDashboard();
 }
 function s2Skip(){if(confirm('Skip 2FA? You can enable it anytime from Profile Settings.'))alert('Redirecting...');}
 function s2Reset(){
@@ -654,9 +660,8 @@ function getVOtp(pfx){
 function sVerif(pfx){
   if(getVOtp(pfx)!=='123456'){document.getElementById(pfx+'err').classList.add('show');return;}
   document.getElementById(pfx+'err').classList.remove('show');
-  document.getElementById(pfx+'form').style.display='none';
-  document.getElementById(pfx+'suc').classList.add('show');
   clearInterval(timers[pfx]);
+  goToDashboard();
 }
 function sResend(pfx,secs){
   var num=pfx.replace('s','');
@@ -697,8 +702,14 @@ function s1OpenMobile(e){
 }
 function s1SendOtp(e){
   e.stopPropagation();
-  var v=document.getElementById('s1mNum').value.trim();
-  if(!v){document.getElementById('s1mNum').style.borderColor='#dc2626';return;}
+  var v=document.getElementById('s1mNum').value.trim().replace(/\s+/g,'');
+  var errEl=document.getElementById('s1mNumErr');
+  if(v!=='9999996789'){
+    document.getElementById('s1mNum').style.borderColor='#dc2626';
+    errEl.classList.add('show');
+    return;
+  }
+  errEl.classList.remove('show');
   document.getElementById('s1mNum').style.borderColor='';
   document.getElementById('s1mNum').disabled=true;
   var b=document.getElementById('s1mSendBtn');
@@ -741,12 +752,7 @@ function s1Resend(){
 }
 function s1Check(){document.getElementById('s1cont').disabled=!(s1eSel||s1mVerif);}
 function s1Enable(){
-  document.getElementById('s1form').style.display='none';
-  var t='';
-  if(s1eSel) t+='<div class="stag"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Email 2FA</div>';
-  if(s1mVerif)t+='<div class="stag"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Mobile 2FA</div>';
-  document.getElementById('s1tags').innerHTML=t;
-  document.getElementById('s1suc').classList.add('show');
+  goToDashboard();
 }
 function s1Skip(){if(confirm('Skip 2FA? You can enable it anytime from Profile Settings.'))alert('Redirecting...');}
 function s1Reset(){
@@ -760,6 +766,7 @@ function s1Reset(){
   document.getElementById('s1mSub').textContent='xxxxxx6789';
   document.getElementById('s1mBody').classList.remove('open');
   document.getElementById('s1mNum').value='';document.getElementById('s1mNum').disabled=false;document.getElementById('s1mNum').style.borderColor='';
+  document.getElementById('s1mNumErr').classList.remove('show');
   var b=document.getElementById('s1mSendBtn');b.disabled=false;b.textContent='Send OTP to Mobile';b.style.background='';
   document.getElementById('s1otpArea').classList.remove('open');
   document.querySelectorAll('#s1otpArea .ob').forEach(function(b){b.value='';});
@@ -772,5 +779,195 @@ window.addEventListener('load', function(){
   ['s3','s4','s5'].forEach(function(p){startTimer(p,30);});
 });
 </script>
+<!-- ════════ DASHBOARD ════════ -->
+<div id="dashboard" style="display:none;width:100%;min-height:100vh;background:#f5f6fa;">
+  <div style="display:flex;min-height:100vh;">
+
+    <!-- Sidebar -->
+    <div style="width:180px;background:#0c1d42;display:flex;flex-direction:column;flex-shrink:0;padding:0;">
+      <div style="display:flex;align-items:center;gap:8px;padding:16px 16px 14px;border-bottom:1px solid rgba(255,255,255,.08);">
+        <div style="width:28px;height:28px;border-radius:6px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;">m</div>
+        <span style="font-size:13px;font-weight:700;color:#fff;">Masters India</span>
+      </div>
+      <nav style="flex:1;padding:8px 0;">
+        <div style="background:rgba(255,255,255,.12);border-radius:6px;margin:2px 10px;padding:8px 12px;display:flex;align-items:center;gap:9px;cursor:pointer;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          <span style="font-size:12.5px;color:#fff;font-weight:600;">Dashboard</span>
+        </div>
+        <div style="margin:2px 10px;padding:8px 12px;display:flex;align-items:center;gap:9px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='rgba(255,255,255,.07)'" onmouseout="this.style.background=''">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <span style="font-size:12.5px;color:rgba(255,255,255,.6);">Data Import</span>
+        </div>
+        <div style="margin:2px 10px;padding:8px 12px;display:flex;align-items:center;gap:9px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='rgba(255,255,255,.07)'" onmouseout="this.style.background=''">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <span style="font-size:12.5px;color:rgba(255,255,255,.6);">GST Return</span>
+        </div>
+        <div style="margin:2px 10px;padding:8px 12px;display:flex;align-items:center;gap:9px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='rgba(255,255,255,.07)'" onmouseout="this.style.background=''">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span style="font-size:12.5px;color:rgba(255,255,255,.6);">IMS</span>
+        </div>
+        <div style="margin:2px 10px;padding:8px 12px;display:flex;align-items:center;gap:9px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='rgba(255,255,255,.07)'" onmouseout="this.style.background=''">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          <span style="font-size:12.5px;color:rgba(255,255,255,.6);">GST Reconciliation</span>
+        </div>
+        <div style="margin:2px 10px;padding:8px 12px;display:flex;align-items:center;gap:9px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='rgba(255,255,255,.07)'" onmouseout="this.style.background=''">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          <span style="font-size:12.5px;color:rgba(255,255,255,.6);">Challans &amp; Payment</span>
+        </div>
+        <div style="margin:2px 10px;padding:8px 12px;display:flex;align-items:center;gap:9px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='rgba(255,255,255,.07)'" onmouseout="this.style.background=''">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+          <span style="font-size:12.5px;color:rgba(255,255,255,.6);">Notices &amp; Orders</span>
+          <span style="background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:10px;margin-left:auto;">99</span>
+        </div>
+        <div style="margin:2px 10px;padding:8px 12px;display:flex;align-items:center;gap:9px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='rgba(255,255,255,.07)'" onmouseout="this.style.background=''">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          <span style="font-size:12.5px;color:rgba(255,255,255,.6);">Reports</span>
+        </div>
+        <div style="margin:2px 10px;padding:8px 12px;display:flex;align-items:center;gap:9px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='rgba(255,255,255,.07)'" onmouseout="this.style.background=''">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+          <span style="font-size:12.5px;color:rgba(255,255,255,.6);">Configurations</span>
+        </div>
+        <div style="margin:2px 10px;padding:8px 12px;display:flex;align-items:center;gap:9px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='rgba(255,255,255,.07)'" onmouseout="this.style.background=''">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span style="font-size:12.5px;color:rgba(255,255,255,.6);">Follow-up Agent</span>
+        </div>
+      </nav>
+      <div style="padding:12px 10px;border-top:1px solid rgba(255,255,255,.08);">
+        <div style="margin:2px 0;padding:8px 12px;display:flex;align-items:center;gap:9px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='rgba(255,255,255,.07)'" onmouseout="this.style.background=''">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span style="font-size:12.5px;color:rgba(255,255,255,.6);">Try MI Products</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main -->
+    <div style="flex:1;display:flex;flex-direction:column;min-width:0;">
+
+      <!-- Top bar -->
+      <div style="height:52px;background:#fff;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="cursor:pointer;"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        <span style="font-size:16px;font-weight:700;color:#111827;flex:1;">Dashboard</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="cursor:pointer;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="cursor:pointer;"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="cursor:pointer;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <div style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+          <div style="width:32px;height:32px;border-radius:50%;background:#0c1d42;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;">AS</div>
+          <span style="font-size:13px;font-weight:500;color:#374151;">Anju Shahi</span>
+        </div>
+        <button onclick="resetDashboard()" style="margin-left:12px;padding:6px 14px;border-radius:7px;border:1.5px solid #e5e7eb;background:#fff;color:#6b7280;font-size:11.5px;font-weight:600;cursor:pointer;">← Back to 2FA Demo</button>
+      </div>
+
+      <!-- Content -->
+      <div style="flex:1;padding:20px 24px;overflow-y:auto;">
+
+        <!-- Smart Notifications -->
+        <div style="background:#fff;border-radius:10px;border:1px solid #e5e7eb;padding:18px 20px;margin-bottom:20px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <span style="font-size:14px;font-weight:600;color:#111827;">Smart Notifications</span>
+          </div>
+          <div style="display:flex;gap:0;border-bottom:1px solid #e5e7eb;margin-bottom:14px;">
+            <div style="padding:6px 14px;font-size:12.5px;font-weight:600;color:#0c1d42;border-bottom:2px solid #0c1d42;cursor:pointer;">GST Notifications</div>
+            <div style="padding:6px 14px;font-size:12.5px;font-weight:500;color:#6b7280;cursor:pointer;">CBIC Notifications</div>
+          </div>
+          <div style="border:1px solid #e5e7eb;border-radius:7px;padding:8px 12px;display:flex;align-items:center;gap:8px;margin-bottom:14px;max-width:300px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <span style="font-size:12px;color:#9ca3af;">Search GSTIN Updates</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <p style="font-size:12.5px;color:#1a56db;cursor:pointer;">1. Advisory to Taxpayers and Stakeholders – Enhancements in the e-Way Bill (EWB) Portal</p>
+            <p style="font-size:12.5px;color:#1a56db;cursor:pointer;">2. Filing of Annexure-B for Refund Applications involving Accumulated ITC using the offline utility in GST portal</p>
+            <p style="font-size:12.5px;color:#1a56db;cursor:pointer;">3. Gross and Net GST revenue collections for the month of Apr, 2026</p>
+            <p style="font-size:12.5px;color:#1a56db;cursor:pointer;">4. Introduction of IMS Offline Tool</p>
+            <p style="font-size:12.5px;color:#1a56db;cursor:pointer;">5. Advisory on Re-Computation of Interest under Table 5.1 of GSTR-3B</p>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:14px;">
+            <span style="font-size:12px;color:#6b7280;">Total 17 items</span>
+            <div style="display:flex;align-items:center;gap:4px;">
+              <div style="width:28px;height:28px;border-radius:6px;border:1px solid #e5e7eb;display:flex;align-items:center;justify-content:center;cursor:pointer;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></div>
+              <div style="width:28px;height:28px;border-radius:6px;background:#0c1d42;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;color:#fff;font-weight:600;">1</div>
+              <div style="width:28px;height:28px;border-radius:6px;border:1px solid #e5e7eb;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;color:#374151;">2</div>
+              <div style="width:28px;height:28px;border-radius:6px;border:1px solid #e5e7eb;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;color:#374151;">3</div>
+              <div style="width:28px;height:28px;border-radius:6px;border:1px solid #e5e7eb;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;color:#374151;">4</div>
+              <div style="width:28px;height:28px;border-radius:6px;border:1px solid #e5e7eb;display:flex;align-items:center;justify-content:center;cursor:pointer;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Return Filing Status -->
+        <div style="background:#fff;border-radius:10px;border:1px solid #e5e7eb;padding:18px 20px;">
+          <div style="display:flex;gap:0;border-bottom:1px solid #e5e7eb;margin-bottom:14px;">
+            <div style="padding:6px 14px;font-size:12.5px;font-weight:600;color:#0c1d42;border-bottom:2px solid #0c1d42;cursor:pointer;">Return Filing Status</div>
+            <div style="padding:6px 14px;font-size:12.5px;font-weight:500;color:#6b7280;cursor:pointer;">Annual Turnover</div>
+          </div>
+          <div style="overflow-x:auto;">
+            <table style="width:100%;border-collapse:collapse;font-size:12px;">
+              <thead>
+                <tr style="border-bottom:1px solid #e5e7eb;">
+                  <th style="text-align:left;padding:8px 12px;color:#6b7280;font-weight:600;">Business Name</th>
+                  <th style="text-align:left;padding:8px 12px;color:#6b7280;font-weight:600;">GSTIN</th>
+                  <th style="text-align:left;padding:8px 12px;color:#6b7280;font-weight:600;">Return Type</th>
+                  <th style="text-align:left;padding:8px 12px;color:#6b7280;font-weight:600;">Period</th>
+                  <th style="text-align:left;padding:8px 12px;color:#6b7280;font-weight:600;">Date of Filing</th>
+                  <th style="text-align:left;padding:8px 12px;color:#6b7280;font-weight:600;">Status</th>
+                  <th style="text-align:left;padding:8px 12px;color:#6b7280;font-weight:600;">Last Updated</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="border-bottom:1px solid #f3f4f6;">
+                  <td style="padding:10px 12px;color:#111827;">Sandbox Two</td>
+                  <td style="padding:10px 12px;color:#374151;">33GSPTN0591G1Z7</td>
+                  <td style="padding:10px 12px;color:#374151;">GSTR1</td>
+                  <td style="padding:10px 12px;color:#374151;">04-2026</td>
+                  <td style="padding:10px 12px;color:#9ca3af;">-</td>
+                  <td style="padding:10px 12px;"><span style="background:#fff7ed;color:#b45309;font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;">Not Filed</span></td>
+                  <td style="padding:10px 12px;color:#374151;">15-05-2026 08:09:36 AM</td>
+                </tr>
+                <tr style="border-bottom:1px solid #f3f4f6;">
+                  <td style="padding:10px 12px;color:#111827;">Sandbox Two</td>
+                  <td style="padding:10px 12px;color:#374151;">33GSPTN0591G1Z7</td>
+                  <td style="padding:10px 12px;color:#374151;">GSTR3B</td>
+                  <td style="padding:10px 12px;color:#374151;">04-2026</td>
+                  <td style="padding:10px 12px;color:#9ca3af;">-</td>
+                  <td style="padding:10px 12px;"><span style="background:#fff7ed;color:#b45309;font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;">Not Filed</span></td>
+                  <td style="padding:10px 12px;color:#374151;">15-05-2026 08:09:36 AM</td>
+                </tr>
+                <tr style="border-bottom:1px solid #f3f4f6;">
+                  <td style="padding:10px 12px;color:#111827;">IRIS</td>
+                  <td style="padding:10px 12px;color:#374151;">33GSPTN0121G1ZP</td>
+                  <td style="padding:10px 12px;color:#374151;">GSTR1</td>
+                  <td style="padding:10px 12px;color:#374151;">04-2026</td>
+                  <td style="padding:10px 12px;color:#9ca3af;">-</td>
+                  <td style="padding:10px 12px;"><span style="background:#fff7ed;color:#b45309;font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;">Not Filed</span></td>
+                  <td style="padding:10px 12px;color:#374151;">15-05-2026 08:01:30 AM</td>
+                </tr>
+                <tr>
+                  <td style="padding:10px 12px;color:#111827;">IRIS</td>
+                  <td style="padding:10px 12px;color:#374151;">33GSPTN0121G1ZP</td>
+                  <td style="padding:10px 12px;color:#374151;">GSTR3B</td>
+                  <td style="padding:10px 12px;color:#374151;">04-2026</td>
+                  <td style="padding:10px 12px;color:#9ca3af;">-</td>
+                  <td style="padding:10px 12px;"><span style="background:#fff7ed;color:#b45309;font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;">Not Filed</span></td>
+                  <td style="padding:10px 12px;color:#374151;">15-05-2026 08:01:30 AM</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:14px;">
+            <span style="font-size:12px;color:#6b7280;">Total 49 items</span>
+            <div style="display:flex;align-items:center;gap:4px;">
+              <div style="width:28px;height:28px;border-radius:6px;border:1px solid #e5e7eb;display:flex;align-items:center;justify-content:center;cursor:pointer;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></div>
+              <div style="width:28px;height:28px;border-radius:6px;background:#0c1d42;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;color:#fff;font-weight:600;">1</div>
+              <div style="width:28px;height:28px;border-radius:6px;border:1px solid #e5e7eb;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;color:#374151;">2</div>
+              <div style="width:28px;height:28px;border-radius:6px;border:1px solid #e5e7eb;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;color:#374151;">3</div>
+              <div style="width:28px;height:28px;border-radius:6px;border:1px solid #e5e7eb;display:flex;align-items:center;justify-content:center;cursor:pointer;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
